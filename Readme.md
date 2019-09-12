@@ -1,7 +1,7 @@
 # Личный проект «Кекстаграм» [![Build status][travis-image]][travis-url]
 
 * Студент: [David Dsgnr](https://up.htmlacademy.ru/javascript/18/user/451023).
-* Наставник: `Неизвестно`.
+* Наставник: `Евгений Алексеенко`.
 
 ---
 
