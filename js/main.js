@@ -30,15 +30,16 @@ var getRandomElement = function (arr) {
 var getRandomMessage = function (messages) {
   var firstSentenceIndex = getRandomNumber(0, messages.length);
   var firstSentence = messages[firstSentenceIndex];
-  messages.splice(firstSentenceIndex, 1);
+  var tempMessages = messages.slice();
+  tempMessages.splice(firstSentenceIndex, 1);
   var isSecondSentenceNeeded = Boolean(Math.round(Math.random()));
-  var secondSentence = isSecondSentenceNeeded ? ' ' + getRandomElement(messages) : '';
+  var secondSentence = isSecondSentenceNeeded ? ' ' + getRandomElement(tempMessages) : '';
   return firstSentence + secondSentence;
 };
 
 var getRandomComments = function () {
   var comments = [];
-  for (var i = 0; i < 5; i++) {
+  for (var i = 0; i < COMMENTS_QUANTITY; i++) {
     var commentItem = {
       avatar: 'img/avatar-' + getRandomNumber(AVATAR_MIN, AVATAR_MAX) + '.svg',
       message: getRandomMessage(COMMENTS_TEXT),
