@@ -32,7 +32,7 @@ var getRandomMessage = function (messages) {
   var firstSentence = messages[firstSentenceIndex];
   var tempMessages = messages.slice();
   tempMessages.splice(firstSentenceIndex, 1);
-  var isSecondSentenceNeeded = Boolean(Math.round(Math.random()));
+  var isSecondSentenceNeeded = Math.round(Math.random());
   var secondSentence = isSecondSentenceNeeded ? ' ' + getRandomElement(tempMessages) : '';
   return firstSentence + secondSentence;
 };
@@ -58,7 +58,7 @@ var generatePhotos = function (photosCount) {
       description: 'Описание фотографии' + i,
       likes: getRandomNumber(LIKES_MIN, LIKES_MAX),
       comments: getRandomComments()
-    })
+    });
   }
   return photos;
 };
@@ -75,7 +75,6 @@ var getPhotos = function () {
   var picturesBlock = document.querySelector('.pictures');
   var fragment = document.createDocumentFragment();
   var photos = generatePhotos(PHOTOS_QUANTITY);
-  console.log(photos);
   for (var i = 0; i < PHOTOS_QUANTITY; i++) {
     fragment.appendChild(renderPhoto(photos[i]));
   }
