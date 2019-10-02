@@ -10,8 +10,8 @@ var COMMENTS_TEXT = [
   'Лица у людей на фотке перекошены, как будто их избивают. Как можно было поймать такой неудачный момент?!'
 ];
 
-var PHOTOS_COUNT = 25;
-var COMMENTS_COUNT = 12;
+var PHOTOS_QUANTITY = 25;
+var COMMENTS_QUANTITY = 12;
 var AVATAR_MIN = 1;
 var AVATAR_MAX = 6;
 var LIKES_MIN = 15;
@@ -20,56 +20,44 @@ var LIKES_MAX = 200;
 var pictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
 
 var getRandomNumber = function (min, max) {
-  var randomNumber = Math.floor(Math.random() * (max - min) + min);
-  return randomNumber;
+  return Math.floor(Math.random() * (max - min) + min);
 };
 
-var getRandomString = function (arr) {
+var getRandomElement = function (arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 };
 
-var getRandomMessage = function (arr) {
-  var shuffledArray = arr.sort(function () {
-    return 0.5 - Math.random();
-  });
-  var cutArray = shuffledArray.slice(0, getRandomNumber(1, 3));
-  var randomMessage = '';
-  if (cutArray.length > 1) {
-    randomMessage = cutArray[0] + ' ' + cutArray[1];
-  } else {
-    randomMessage = cutArray[0];
-  }
-  return randomMessage;
+var getRandomMessage = function (messages) {
+  var firstSentenceIndex = getRandomNumber(0, messages.length);
+  var firstSentence = messages[firstSentenceIndex];
+  messages.splice(firstSentenceIndex, 1);
+  var isSecondSentenceNeeded = Boolean(Math.round(Math.random()));
+  var secondSentence = isSecondSentenceNeeded ? ' ' + getRandomElement(messages) : '';
+  return firstSentence + secondSentence;
 };
 
 var getRandomComments = function () {
   var comments = [];
-  for (var i = 0; i < COMMENTS_COUNT; i++) {
+  for (var i = 0; i < 5; i++) {
     var commentItem = {
       avatar: 'img/avatar-' + getRandomNumber(AVATAR_MIN, AVATAR_MAX) + '.svg',
       message: getRandomMessage(COMMENTS_TEXT),
-      name: getRandomString(AUTHORS_NAMES)
+      name: getRandomElement(AUTHORS_NAMES)
     };
     comments.push(commentItem);
   }
-  var randomComments = [];
-  var randomCommentsCount = getRandomNumber(1, 10);
-  for (i = 0; i < randomCommentsCount; i++) {
-    randomComments.push(comments[Math.floor(Math.random() * comments.length)]);
-  }
-  return randomComments;
+  return comments;
 };
 
 var generatePhotos = function (photosCount) {
   var photos = [];
   for (var i = 1; i <= photosCount; i++) {
-    var photosItem = {
+    photos.push({
       url: 'photos/' + i + '.jpg',
       description: 'Описание фотографии' + i,
       likes: getRandomNumber(LIKES_MIN, LIKES_MAX),
       comments: getRandomComments()
-    };
-    photos.push(photosItem);
+    })
   }
   return photos;
 };
@@ -85,11 +73,12 @@ var renderPhoto = function (photo) {
 var getPhotos = function () {
   var picturesBlock = document.querySelector('.pictures');
   var fragment = document.createDocumentFragment();
-  var photos = generatePhotos(PHOTOS_COUNT);
-  for (var i = 0; i < PHOTOS_COUNT; i++) {
+  var photos = generatePhotos(PHOTOS_QUANTITY);
+  console.log(photos);
+  for (var i = 0; i < PHOTOS_QUANTITY; i++) {
     fragment.appendChild(renderPhoto(photos[i]));
   }
-  return picturesBlock.appendChild(fragment);
+  picturesBlock.appendChild(fragment);
 };
 
 getPhotos();
