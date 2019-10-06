@@ -55,7 +55,7 @@ var generatePhotos = function (photosCount) {
   for (var i = 1; i <= photosCount; i++) {
     photos.push({
       url: 'photos/' + i + '.jpg',
-      description: 'Описание фотографии' + i,
+      description: 'Описание фотографии' + ' №' + i,
       likes: getRandomNumber(LIKES_MIN, LIKES_MAX),
       comments: getRandomComments()
     });
@@ -82,3 +82,35 @@ var getPhotos = function () {
 };
 
 getPhotos();
+
+//
+
+var getFullSizePhotos = function () {
+  var photos = generatePhotos(PHOTOS_QUANTITY);
+  var photo = photos[0];
+  var comments = getRandomComments();
+  var comment = comments[0];
+
+  var bigPictureBlock = document.querySelector('.big-picture');
+  var bigPictureImg = document.querySelector('.big-picture__img img');
+  var likesCount = document.querySelector('.likes-count');
+  var commentsCount = document.querySelector('.comments-count');
+  var photoDecription = document.querySelector('.social__caption');
+  var commentAvatar = document.querySelector('.social__comment img');
+  var commentText = document.querySelector('.social__comment p');
+  var commentsCountBlock = document.querySelector('.social__comment-count');
+  var commentsLoader = document.querySelector('.comments-loader');
+
+  bigPictureBlock.classList.remove('hidden');
+  bigPictureImg.src = photo.url;
+  likesCount.textContent = photo.likes;
+  commentsCount.textContent = COMMENTS_QUANTITY;
+  photoDecription.textContent = photo.description;
+  commentAvatar.src = comment.avatar;
+  commentAvatar.alt = comment.name;
+  commentText.textContent = comment.message;
+  commentsCountBlock.classList.add('visually-hidden');
+  commentsLoader.classList.add('visually-hidden');
+};
+
+getFullSizePhotos();
