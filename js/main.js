@@ -92,7 +92,9 @@ var renderBigPhoto = function () {
   var photo = photos[getRandomNumber(1, PHOTOS_QUANTITY)];
   var bigPictureBlock = document.querySelector('.big-picture');
   var bigPictureImg = document.querySelector('.big-picture__img img');
+  var photoDescription = document.querySelector('.social__caption');
   bigPictureBlock.classList.remove('hidden');
+  photoDescription.textContent = photo.description;
   bigPictureImg.src = photo.url;
 };
 
