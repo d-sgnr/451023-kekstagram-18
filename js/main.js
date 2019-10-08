@@ -116,13 +116,17 @@ var getComments = function () {
   commentsBlock.appendChild(fragment);
 };
 
-var hideCountAndLoader = function () {
+var hideDefaultElements = function () {
   var commentsCountBlock = document.querySelector('.social__comment-count');
   var commentsLoader = document.querySelector('.comments-loader');
+  var commentsList = document.querySelector('.social__comments');
+  var comments = document.querySelectorAll('.social__comment');
   commentsCountBlock.classList.add('visually-hidden');
   commentsLoader.classList.add('visually-hidden');
+  commentsList.removeChild(comments[0]);
+  commentsList.removeChild(comments[1]);
 };
 
+hideDefaultElements();
 renderBigPhoto();
 getComments();
-hideCountAndLoader();
