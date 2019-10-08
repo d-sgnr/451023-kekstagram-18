@@ -19,7 +19,7 @@ var LIKES_MAX = 200;
 
 var pictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
 
-var commentTemplate = document.querySelector('.social__comment');
+var commentTemplate = document.querySelector('#comment').content.querySelector('.social__comment');
 
 var getRandomNumber = function (min, max) {
   return Math.floor(Math.random() * (max - min) + min);
@@ -119,12 +119,8 @@ var getComments = function () {
 var hideDefaultElements = function () {
   var commentsCountBlock = document.querySelector('.social__comment-count');
   var commentsLoader = document.querySelector('.comments-loader');
-  var commentsList = document.querySelector('.social__comments');
-  var comments = document.querySelectorAll('.social__comment');
   commentsCountBlock.classList.add('visually-hidden');
   commentsLoader.classList.add('visually-hidden');
-  commentsList.removeChild(comments[0]);
-  commentsList.removeChild(comments[1]);
 };
 
 hideDefaultElements();
