@@ -27,6 +27,12 @@ var pictureTemplate = document.querySelector('#picture').content.querySelector('
 
 var commentTemplate = document.querySelector('#comment').content.querySelector('.social__comment');
 
+var errorTemplate = document.querySelector('#error').content.querySelector('.error');
+
+var successTemplate = document.querySelector('#success').content.querySelector('.success');
+
+var pageMain = document.querySelector('main');
+
 var getRandomNumber = function (min, max) {
   return Math.floor(Math.random() * (max - min) + min);
 };
@@ -79,8 +85,9 @@ var renderPhoto = function (photo) {
   return pictureElement;
 };
 
+var picturesBlock = document.querySelector('.pictures');
+
 var getPhotos = function () {
-  var picturesBlock = document.querySelector('.pictures');
   var fragment = document.createDocumentFragment();
   var photos = generatePhotos(PHOTOS_QUANTITY);
   for (var i = 0; i < PHOTOS_QUANTITY; i++) {
@@ -93,15 +100,17 @@ getPhotos();
 
 //
 
-var renderBigPhoto = function () {
+var bigPictureBlock = document.querySelector('.big-picture');
+
+var renderBigPhoto = function (miniature) {
   var photos = generatePhotos(PHOTOS_QUANTITY);
   var photo = photos[getRandomNumber(1, PHOTOS_QUANTITY)];
-  var bigPictureBlock = document.querySelector('.big-picture');
   var bigPictureImg = document.querySelector('.big-picture__img img');
   var photoDescription = document.querySelector('.social__caption');
   bigPictureBlock.classList.remove('hidden');
   photoDescription.textContent = photo.description;
-  bigPictureImg.src = photo.url;
+  bigPictureImg.src = miniature;
+  // bigPictureImg.src = photo.url;
 };
 
 var renderComment = function (comment) {
@@ -129,13 +138,7 @@ var hideDefaultElements = function () {
   commentsLoader.classList.add('visually-hidden');
 };
 
-var miniPicture = document.querySelector('.picture');
-
-miniPicture.addEventListener('click', function () {
-  hideDefaultElements();
-  renderBigPhoto();
-  getComments();
-});
+var miniPictures = document.querySelectorAll('.picture');
 
 // Open photo editor
 
@@ -225,7 +228,6 @@ var PHOBOS_FILTER_MIN = 0;
 var PHOBOS_FILTER_MAX = 3;
 var MAX_HASHTAGS_QTY = 5;
 var MAX_HASHTAGS_LENGTH = 20;
-var MAX_DESCR_LENGTH = 140;
 
 var effectLevelPin = document.querySelector('.effect-level__pin');
 var effectLevelDeapth = document.querySelector('.effect-level__depth');
@@ -265,7 +267,6 @@ radioPreviewsArray.forEach(function (el) {
 // Hashtags
 
 var hashTagsInput = document.querySelector('.text__hashtags');
-var descriptionInput = document.querySelector('.text__description');
 
 var hasDuplicates = function (arr) {
   return arr.some(function (item, index) {
@@ -276,44 +277,79 @@ var hasDuplicates = function (arr) {
 var validateHashtags = function () {
   var hashTags = hashTagsInput.value.split(' ');
   for (var i = 0; i < hashTags.length; i++) {
-    if (hashTags[i].charAt(0) !== '#') {
-      hashTagsInput.setCustomValidity('Хэш-тег должен начинаться с символа # (решётка)');
-    }
-    if (hashTags[i] === '#') {
-      hashTagsInput.setCustomValidity('Хэш-тег не может состоять только из одной решётки');
-    }
-    if (hashTags[i].charAt(0) !== '#') {
+    if (hashTags[i] === '') {
+      hashTagsInput.setCustomValidity('');
+    } else if (hashTags[i].charAt(0) !== '#') {
       hashTagsInput.setCustomValidity('Хэш-тег должен начинаться с решётки');
-    }
-    if (hashTags.length > MAX_HASHTAGS_QTY) {
+    } else if (hashTags[i] === '#') {
+      hashTagsInput.setCustomValidity('Хэш-тег не может состоять только из одной решётки');
+    } else if (hashTags.length > MAX_HASHTAGS_QTY) {
       hashTagsInput.setCustomValidity('Нельзя указывать больше ' + MAX_HASHTAGS_QTY + ' хэш-тегов');
-    }
-    if (hashTags[i].length > MAX_HASHTAGS_LENGTH) {
+    } else if (hashTags[i].length > MAX_HASHTAGS_LENGTH) {
       hashTagsInput.setCustomValidity('Максимальная длина одного хэш-тега не более ' + MAX_HASHTAGS_LENGTH + ' символов, включая решётку');
-    }
-    if ((hashTags[i].match(/#/g)).length > 1) {
+    } else if ((hashTags[i].match(/#/g)).length > 1) {
       hashTagsInput.setCustomValidity('Хэш-теги должны разделяться пробелами');
-    }
-    if (hasDuplicates(hashTags)) {
+    } else if (hasDuplicates(hashTags)) {
       hashTagsInput.setCustomValidity('Один и тот же хэш-тег не может быть использован дважды');
+    } else {
+      hashTagsInput.setCustomValidity('');
     }
   }
   return hashTagsInput.reportValidity();
 };
 
-var validateDescription = function () {
-  if (descriptionInput.value.length > MAX_DESCR_LENGTH) {
-    descriptionInput.setCustomValidity('Длина комментария не может составлять больше ' + MAX_DESCR_LENGTH + ' символов');
-  }
-  return descriptionInput.reportValidity();
+// Error and Success
+
+var showErrorMessage = function () {
+  var errorMessage = errorTemplate.cloneNode(true);
+  var fragment = document.createDocumentFragment();
+  fragment.appendChild(errorMessage);
+  pageMain.appendChild(fragment);
 };
+
+var showSuccessMessage = function () {
+  var successMessage = successTemplate.cloneNode(true);
+  var fragment = document.createDocumentFragment();
+  fragment.appendChild(successMessage);
+  pageMain.appendChild(fragment);
+};
+
+showErrorMessage();
+showSuccessMessage();
+
+var tryAgainButton = document.querySelector('.error__button--try-again');
+var tryAnotherFileButton = document.querySelector('.error__button--another-file');
+
+var errorWindow = document.querySelector('.error');
+
+var tryAnotherFile = function () {
+  errorWindow.remove();
+  imgUpload.click();
+};
+
+tryAnotherFileButton.addEventListener('click', tryAnotherFile);
+tryAgainButton.addEventListener('click', tryAnotherFile);
+
+var successButton = document.querySelector('.success__button');
+var successWindow = document.querySelector('.success');
+
+var closeSuccessMessage = function () {
+  successWindow.remove();
+  return;
+};
+
+var closeSuccessMessageOnEnter = function (evt) {
+  if (evt.keycode === ENTER_KEYCODE) {
+    successWindow.remove();
+  }
+  return;
+};
+
+successButton.addEventListener('click', closeSuccessMessage);
+successButton.addEventListener('keydown', closeSuccessMessageOnEnter);
 
 hashTagsInput.addEventListener('change', function () {
   validateHashtags();
-});
-
-descriptionInput.addEventListener('change', function () {
-  validateDescription();
 });
 
 // Filter Slider
@@ -408,3 +444,67 @@ effectLevelPin.addEventListener('mousedown', function (evt) {
   document.addEventListener('mousemove', onMouseMove);
   document.addEventListener('mouseup', onMouseUp);
 });
+
+//
+
+var closeBigPictureButton = document.querySelector('.big-picture__cancel');
+
+var closeBigPicture = function () {
+  bigPictureBlock.classList.add('hidden');
+  document.removeEventListener('keydown', closeBigPictureOnEsc);
+  closeBigPictureButton.removeEventListener('keydown', closeBigPictureOnEnter);
+};
+
+var closeBigPictureOnEsc = function (evt) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    return closeBigPicture();
+  }
+  return null;
+};
+
+var closeBigPictureOnEnter = function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    return;
+  }
+  return;
+};
+
+
+var openBigPicture = function () {
+  var miniaturePicture = event.currentTarget.querySelector('.picture__img').src;
+  hideDefaultElements();
+  renderBigPhoto(miniaturePicture);
+  getComments();
+  bigPictureBlock.classList.remove('hidden');
+  document.addEventListener('keydown', closeBigPictureOnEsc);
+  closeBigPictureButton.addEventListener('keydown', closeBigPictureOnEnter);
+};
+
+var onMiniPictureClicked = function () {
+  openBigPicture();
+};
+
+var onMiniPictureEnterPress = function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    event.preventDefault();
+    openBigPicture();
+  }
+  return null;
+};
+
+miniPictures.forEach(function (el) {
+  el.addEventListener('click', onMiniPictureClicked, true);
+  el.addEventListener('keydown', onMiniPictureEnterPress, true);
+});
+
+closeBigPictureButton.addEventListener('click', function () {
+  closeBigPicture();
+});
+
+// Success
+
+// var buttonSubmit = document.querySelector('.img-upload__submit');
+//
+// var validateForm = function () {
+//   showSuccessMessage();
+// };
