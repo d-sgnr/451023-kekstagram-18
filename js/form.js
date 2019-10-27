@@ -142,8 +142,10 @@
     imgUpload.click();
   };
 
-  tryAnotherFileButton.addEventListener('click', tryAnotherFile);
-  tryAgainButton.addEventListener('click', tryAnotherFile);
+  var tryPublishAgain = function () {
+    errorWindow.remove();
+    openEditor();
+  };
 
   var successButton = document.querySelector('.success__button');
   var successWindow = document.querySelector('.success');
@@ -161,6 +163,9 @@
     window.util.isEnterEvent(evt, successWindowRemove);
     return null;
   };
+
+  tryAnotherFileButton.addEventListener('click', tryAnotherFile);
+  tryAgainButton.addEventListener('click', tryPublishAgain);
 
   successButton.addEventListener('click', closeSuccessMessage);
   successButton.addEventListener('keydown', closeSuccessMessageOnEnter);
