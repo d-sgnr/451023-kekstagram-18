@@ -64,68 +64,33 @@
 
   getDefaultSlider();
 
-  effectLevelPin.addEventListener('mousedown', function (evt) {
-    evt.preventDefault();
+  var changeFilter = function () {
+    var effectLevelPinPosition = parseInt(effectLevelPin.style.left, 10);
+    var filterNumber = effectLevelPinPosition * 100 / EFFECT_LINE_WIDTH;
 
-    var startCoords = {
-      x: evt.clientX
-    };
+    var chromeFilterApplied = imgFilter.classList.contains('effects__preview--chrome');
+    var sepiaFilterApplied = imgFilter.classList.contains('effects__preview--sepia');
+    var marvinFilterApplied = imgFilter.classList.contains('effects__preview--marvin');
+    var phobosFilterApplied = imgFilter.classList.contains('effects__preview--phobos');
+    var heatFilterApplied = imgFilter.classList.contains('effects__preview--heat');
 
-    var onMouseMove = function (moveEvt) {
-      moveEvt.preventDefault();
+    if (chromeFilterApplied) {
+      imgFilter.style.WebkitFilter = 'grayscale(' + getFilterValue(filterNumber) + ')';
+    }
+    if (sepiaFilterApplied) {
+      imgFilter.style.WebkitFilter = 'sepia(' + getFilterValue(filterNumber) + ')';
+    }
+    if (marvinFilterApplied) {
+      imgFilter.style.WebkitFilter = 'invert(' + Math.round(filterNumber) + '%)';
+    }
+    if (phobosFilterApplied) {
+      imgFilter.style.WebkitFilter = 'blur(' + getFilterLimitedValue(filterNumber, PHOBOS_FILTER_MIN, PHOBOS_FILTER_MAX) + 'px)';
+    }
+    if (heatFilterApplied) {
+      imgFilter.style.WebkitFilter = 'brightness(' + getFilterLimitedValue(filterNumber, HEAT_FILTER_MIN, HEAT_FILTER_MAX);
+    }
+  };
 
-      var shift = {
-        x: startCoords.x - moveEvt.clientX
-      };
+  window.slider.initSlider(changeFilter);
 
-      startCoords = {
-        x: moveEvt.clientX
-      };
-
-      effectLevelPin.style.left = (effectLevelPin.offsetLeft - shift.x) + 'px';
-      var effectLevelPinPosition = parseInt(effectLevelPin.style.left, 10);
-      var filterNumber = effectLevelPinPosition * 100 / EFFECT_LINE_WIDTH;
-
-      if (effectLevelPinPosition >= EFFECT_LINE_WIDTH) {
-        effectLevelPin.style.left = EFFECT_LINE_WIDTH + 'px';
-      }
-
-      if (effectLevelPinPosition < 1) {
-        effectLevelPin.style.left = 0;
-      }
-
-      effectLevelDeapth.style.width = effectLevelPin.style.left;
-      var chromeFilterApplied = imgFilter.classList.contains('effects__preview--chrome');
-      var sepiaFilterApplied = imgFilter.classList.contains('effects__preview--sepia');
-      var marvinFilterApplied = imgFilter.classList.contains('effects__preview--marvin');
-      var phobosFilterApplied = imgFilter.classList.contains('effects__preview--phobos');
-      var heatFilterApplied = imgFilter.classList.contains('effects__preview--heat');
-
-      if (chromeFilterApplied) {
-        imgFilter.style.WebkitFilter = 'grayscale(' + getFilterValue(filterNumber) + ')';
-      }
-      if (sepiaFilterApplied) {
-        imgFilter.style.WebkitFilter = 'sepia(' + getFilterValue(filterNumber) + ')';
-      }
-      if (marvinFilterApplied) {
-        imgFilter.style.WebkitFilter = 'invert(' + Math.round(filterNumber) + '%)';
-      }
-      if (phobosFilterApplied) {
-        imgFilter.style.WebkitFilter = 'blur(' + getFilterLimitedValue(filterNumber, PHOBOS_FILTER_MIN, PHOBOS_FILTER_MAX) + 'px)';
-      }
-      if (heatFilterApplied) {
-        imgFilter.style.WebkitFilter = 'brightness(' + getFilterLimitedValue(filterNumber, HEAT_FILTER_MIN, HEAT_FILTER_MAX);
-      }
-    };
-
-    var onMouseUp = function (upEvt) {
-      upEvt.preventDefault();
-
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
-    };
-
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
-  });
 })();

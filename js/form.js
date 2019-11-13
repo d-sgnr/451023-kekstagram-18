@@ -17,10 +17,14 @@
   var photoEditFormClose = document.querySelector('#upload-cancel');
   var imgUploadForm = document.querySelector('.img-upload__form');
   var hashTagsInput = document.querySelector('.text__hashtags');
+  var formSubmitBtn = document.querySelector('.img-upload__submit');
 
   var errorTemplate = document.querySelector('#error').content.querySelector('.error');
 
   var successTemplate = document.querySelector('#success').content.querySelector('.success');
+
+  var successMessage = successTemplate.cloneNode(true);
+  var errorMessage = errorTemplate.cloneNode(true);
 
   var closeEditorOnEsc = function (evt) {
     if (document.activeElement === hashTagsInput) {
@@ -69,7 +73,7 @@
 
   var closeEditor = function () {
     photoEditForm.classList.add('hidden');
-    imgUploadForm.reset();
+    // imgUploadForm.reset();
     document.removeEventListener('keydown', closeEditorOnEsc);
     photoEditFormClose.removeEventListener('keydown', closeEditorOnEnter);
   };
@@ -115,58 +119,67 @@
     closeEditor();
   });
 
-  var showErrorMessage = function () {
-    var errorMessage = errorTemplate.cloneNode(true);
-    var fragment = document.createDocumentFragment();
-    fragment.appendChild(errorMessage);
-    pageMain.appendChild(fragment);
+  var closeSuccess = function () {
+    var successWindow = document.querySelector('.success');
+    var closeSuccessMessage = function () {
+      successWindow.remove();
+    };
+    var closeSuccessMessageOnEnter = function (evt) {
+      window.util.isEnterEvent(evt, closeSuccessMessage);
+    };
+    var successButton = document.querySelector('.success__button');
+    successButton.addEventListener('click', closeSuccessMessage);
+    successButton.addEventListener('keydown', closeSuccessMessageOnEnter);
   };
 
   var showSuccessMessage = function () {
-    var successMessage = successTemplate.cloneNode(true);
+    closeEditor();
     var fragment = document.createDocumentFragment();
     fragment.appendChild(successMessage);
     pageMain.appendChild(fragment);
+    closeSuccess();
   };
 
-  showErrorMessage();
-  showSuccessMessage();
+  var showErrorMessage = function () {
+    var fragment = document.createDocumentFragment();
+    fragment.appendChild(errorMessage);
+    pageMain.appendChild(errorMessage);
 
-  var tryAgainButton = document.querySelector('.error__button--try-again');
-  var tryAnotherFileButton = document.querySelector('.error__button--another-file');
+    var tryAgainButton = document.querySelector('.error__button--try-again');
+    var tryAnotherFileButton = document.querySelector('.error__button--another-file');
 
-  var errorWindow = document.querySelector('.error');
+    var errorWindow = document.querySelector('.error');
 
-  var tryAnotherFile = function () {
-    errorWindow.remove();
-    imgUpload.click();
+    errorWindow.style.zIndex = '4';
+
+    var tryAnotherFile = function () {
+      errorWindow.remove();
+      imgUpload.click();
+    };
+
+    var tryPublishAgain = function () {
+      errorWindow.remove();
+      formSubmitBtn.click();
+    };
+
+    tryAnotherFileButton.addEventListener('click', tryAnotherFile);
+
+    tryAgainButton.addEventListener('click', tryPublishAgain);
   };
 
-  var tryPublishAgain = function () {
-    errorWindow.remove();
-    openEditor();
+  var submitForm = function () {
+    imgUploadForm.addEventListener('submit', function (evt) {
+      window.backend.save(new FormData(imgUploadForm), showSuccessMessage, showErrorMessage);
+      evt.preventDefault();
+    });
   };
 
-  var successButton = document.querySelector('.success__button');
-  var successWindow = document.querySelector('.success');
+  formSubmitBtn.addEventListener('click', submitForm);
 
-  var closeSuccessMessage = function () {
-    successWindow.remove();
-    return;
+  var closeFormOnSubmit = function (evt) {
+    window.util.isEnterEvent(evt, submitForm);
   };
 
-  var successWindowRemove = function () {
-    return successWindow.remove();
-  };
+  formSubmitBtn.addEventListener('keydown', closeFormOnSubmit);
 
-  var closeSuccessMessageOnEnter = function (evt) {
-    window.util.isEnterEvent(evt, successWindowRemove);
-    return null;
-  };
-
-  tryAnotherFileButton.addEventListener('click', tryAnotherFile);
-  tryAgainButton.addEventListener('click', tryPublishAgain);
-
-  successButton.addEventListener('click', closeSuccessMessage);
-  successButton.addEventListener('keydown', closeSuccessMessageOnEnter);
 })();
