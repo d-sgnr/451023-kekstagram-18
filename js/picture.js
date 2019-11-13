@@ -1,24 +1,7 @@
 'use strict';
 
 (function () {
-  var PHOTOS_QUANTITY = 25;
-  var LIKES_MIN = 15;
-  var LIKES_MAX = 200;
-
   var pictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
-
-  window.generatePhotos = function (photosCount) {
-    var photos = [];
-    for (var i = 1; i <= photosCount; i++) {
-      photos.push({
-        url: 'photos/' + i + '.jpg',
-        description: 'Описание фотографии' + ' №' + i,
-        likes: window.randomize.number(LIKES_MIN, LIKES_MAX),
-        comments: window.getRandomComments()
-      });
-    }
-    return photos;
-  };
 
   var renderPhoto = function (photo) {
     var pictureElement = pictureTemplate.cloneNode(true);
@@ -30,14 +13,27 @@
 
   var picturesBlock = document.querySelector('.pictures');
 
-  var getPhotos = function () {
+  var successHandler = function (photos) {
     var fragment = document.createDocumentFragment();
-    var photos = window.generatePhotos(PHOTOS_QUANTITY);
-    for (var i = 0; i < PHOTOS_QUANTITY; i++) {
+    for (var i = 0; i < photos.length; i++) {
       fragment.appendChild(renderPhoto(photos[i]));
     }
     picturesBlock.appendChild(fragment);
+    var previewLikes = document.querySelector('.likes-count');
+    previewLikes.textContent = photos[1].likes;
   };
 
-  getPhotos();
+  var errorHandler = function (errorMessage) {
+    var node = document.createElement('div');
+    node.style = 'z-index: 100; margin: 0 auto; text-align: center; background-color: red;';
+    node.style.position = 'absolute';
+    node.style.left = 0;
+    node.style.right = 0;
+    node.style.fontSize = '30px';
+
+    node.textContent = errorMessage;
+    document.body.insertAdjacentElement('afterbegin', node);
+  };
+
+  window.backend.load(successHandler, errorHandler);
 })();
