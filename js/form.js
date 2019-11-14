@@ -73,7 +73,7 @@
 
   var closeEditor = function () {
     photoEditForm.classList.add('hidden');
-    // imgUploadForm.reset();
+    imgUploadForm.reset();
     document.removeEventListener('keydown', closeEditorOnEsc);
     photoEditFormClose.removeEventListener('keydown', closeEditorOnEnter);
   };
@@ -119,25 +119,47 @@
     closeEditor();
   });
 
-  var closeSuccess = function () {
-    var successWindow = document.querySelector('.success');
-    var closeSuccessMessage = function () {
-      successWindow.remove();
-    };
-    var closeSuccessMessageOnEnter = function (evt) {
-      window.util.isEnterEvent(evt, closeSuccessMessage);
-    };
-    var successButton = document.querySelector('.success__button');
-    successButton.addEventListener('click', closeSuccessMessage);
-    successButton.addEventListener('keydown', closeSuccessMessageOnEnter);
-  };
+  // var closeEditor = function () {
+  //   photoEditForm.classList.add('hidden');
+  //   imgUploadForm.reset();
+  //   document.removeEventListener('keydown', closeEditorOnEsc);
+  //   photoEditFormClose.removeEventListener('keydown', closeEditorOnEnter);
+  // };
+
 
   var showSuccessMessage = function () {
     closeEditor();
     var fragment = document.createDocumentFragment();
     fragment.appendChild(successMessage);
     pageMain.appendChild(fragment);
-    closeSuccess();
+    // closeSuccess();
+
+    var successWindow = document.querySelector('.success');
+
+    var closeSuccess = function () {
+      successWindow.remove();
+      document.removeEventListener('click', closeSuccess);
+      document.removeEventListener('keydown', closeSuccessOnEsc);
+      successButton.removeEventListener('click', closeSuccess);
+      successButton.removeEventListener('keydown', closeSuccessOnEnter);
+    };
+
+    var closeSuccessOnEsc = function (evt) {
+      window.util.isEscEvent(evt, closeSuccess);
+    };
+
+    var closeSuccessOnEnter = function (evt) {
+      window.util.isEnterEvent(evt, closeSuccess);
+    };
+    // // var closeSuccessMessage = function () {
+    // //   successWindow.remove();
+    // // };
+
+    var successButton = document.querySelector('.success__button');
+    successButton.addEventListener('click', closeSuccess);
+    successButton.addEventListener('keydown', closeSuccessOnEnter);
+    document.addEventListener('click', closeSuccess);
+    document.addEventListener('keydown', closeSuccessOnEsc);
   };
 
   var showErrorMessage = function () {
@@ -157,14 +179,35 @@
       imgUpload.click();
     };
 
-    var tryPublishAgain = function () {
+    var closeError = function () {
       errorWindow.remove();
-      formSubmitBtn.click();
+      document.removeEventListener('click', closeError);
+      document.removeEventListener('keydown', closeErrorOnEsc);
+      document.addEventListener('keydown', closeEditorOnEsc);
+      tryAgainButton.removeEventListener('click', closeError);
+      tryAgainButton.removeEventListener('keydown', closeErrorOnEnter);
     };
+
+    var closeErrorOnEsc = function (evt) {
+      window.util.isEscEvent(evt, closeError);
+    };
+
+    var closeErrorOnEnter = function (evt) {
+      window.util.isEnterEvent(evt, closeError);
+    };
+
+    // var tryPublishAgain = function () {
+    //   errorWindow.remove();
+    //   formSubmitBtn.click();
+    // };
 
     tryAnotherFileButton.addEventListener('click', tryAnotherFile);
 
-    tryAgainButton.addEventListener('click', tryPublishAgain);
+    tryAgainButton.addEventListener('click', closeError);
+    tryAgainButton.addEventListener('keydown', closeErrorOnEnter);
+    document.addEventListener('keydown', closeErrorOnEsc);
+    document.addEventListener('click', closeError);
+    document.removeEventListener('keydown', closeEditorOnEsc);
   };
 
   var submitForm = function () {
