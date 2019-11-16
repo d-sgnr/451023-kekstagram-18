@@ -1,7 +1,7 @@
 'use strict';
 
 (function () {
-  var successHandler = function (photos) {
+  var successHandler = function () {
 
     var commentTemplate = document.querySelector('#comment').content.querySelector('.social__comment');
 
@@ -13,20 +13,39 @@
       return commentElement;
     };
 
-    window.getComments = function (index) {
+    window.getComments = function (photo) {
       var commentsBlock = document.querySelector('.social__comments');
       var fragment = document.createDocumentFragment();
-      for (var i = 0; i < photos[index].comments.length; i++) {
-        fragment.appendChild(renderComment(photos[index].comments[i]));
+      for (var i = 0; i < photo.comments.length; i++) {
+        fragment.appendChild(renderComment(photo.comments[i]));
       }
       commentsBlock.appendChild(fragment);
+      var loadedComments = Array.from(document.querySelectorAll('.social__comment'));
+      var loadMoreCommentsButton = document.querySelector('.social__comments-loader');
+      if (loadedComments.length > 5) {
+        loadMoreCommentsButton.classList.remove('visually-hidden');
+      }
+      var hiddenComments = loadedComments.slice(5);
+      hiddenComments.forEach(function (el) {
+        el.classList.add('visually-hidden');
+      });
+      var loadMoreComments = function () {
+        var commentsToLoad = hiddenComments.splice(0, 5);
+        commentsToLoad.forEach(function (el) {
+          el.classList.remove('visually-hidden');
+        });
+        if (commentsToLoad.length <= 5) {
+          loadMoreCommentsButton.classList.add('visually-hidden');
+        }
+      };
+      loadMoreCommentsButton.addEventListener('click', loadMoreComments);
     };
 
-    window.getData = function (index) {
+    window.getData = function (photo) {
       var photoDescription = document.querySelector('.social__caption');
       var photoLikes = document.querySelector('.likes-count');
-      photoDescription.textContent = photos[index].description;
-      photoLikes.textContent = photos[index].likes;
+      photoDescription.textContent = photo.description;
+      photoLikes.textContent = photo.likes;
     };
   };
 

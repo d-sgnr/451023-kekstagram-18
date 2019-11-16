@@ -9,6 +9,7 @@
     pictureElement.querySelector('.picture__img').src = photo.url;
     pictureElement.querySelector('.picture__comments').textContent = photo.comments.length;
     pictureElement.querySelector('.picture__likes').textContent = photo.likes;
+    pictureElement.querySelector('.picture__img').link = photo;
     return pictureElement;
   };
 
@@ -27,6 +28,7 @@
 
     var randomizePhotos = window.debounce(function () {
       var loadedPhotos = document.querySelectorAll('.picture');
+
       loadedPhotos.forEach(function (el) {
         el.remove();
       });
