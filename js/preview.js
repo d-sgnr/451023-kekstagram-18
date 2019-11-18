@@ -2,18 +2,24 @@
 
 (function () {
 
+  var SCROLL_X = 0;
+  var SCROLL_Y = 0;
+
   window.getPreviews = function () {
+
+    var pageBody = document.body;
 
     var bigPictureBlock = document.querySelector('.big-picture');
 
     var renderBigPhoto = function (photo) {
       var bigPictureImg = document.querySelector('.big-picture__img img');
       bigPictureBlock.classList.remove('hidden');
-      bigPictureBlock.scrollTo(0, 0);
+      bigPictureBlock.scrollTo(SCROLL_X, SCROLL_Y);
       bigPictureImg.src = photo;
     };
 
     var openBigPicture = function () {
+      pageBody.classList.add('modal-open');
       event.preventDefault();
       var oldComments = document.querySelectorAll('.social__comment');
       if (oldComments.length !== 0) {
@@ -32,14 +38,18 @@
       window.getComments(clickedPhoto);
       bigPictureBlock.classList.remove('hidden');
       document.addEventListener('keydown', closeBigPictureOnEsc);
-      closeBigPictureButton.addEventListener('keydown', closeBigPictureOnEnter);
+      closePreviewButton.addEventListener('keydown', closeBigPictureOnEnter);
+    };
+
+    var onMiniPictureClick = function () {
+      openBigPicture();
     };
 
     var onMiniPictureEnterPress = function (evt) {
       window.util.isEnterEvent(evt, openBigPicture);
     };
 
-    var closeBigPictureButton = document.querySelector('.big-picture__cancel');
+    var closePreviewButton = document.querySelector('.big-picture__cancel');
 
     var deleteBigPhoto = function () {
       var bigPictureImg = document.querySelector('.big-picture__img img');
@@ -47,9 +57,11 @@
     };
 
     var closeBigPicture = function () {
+      pageBody.classList.remove('modal-open');
+      pageBody.removeAttribute('class');
       bigPictureBlock.classList.add('hidden');
       document.removeEventListener('keydown', closeBigPictureOnEsc);
-      closeBigPictureButton.removeEventListener('keydown', closeBigPictureOnEnter);
+      closePreviewButton.removeEventListener('keydown', closeBigPictureOnEnter);
       deleteBigPhoto();
     };
 
@@ -71,12 +83,14 @@
     var miniPictures = document.querySelectorAll('.picture');
 
     miniPictures.forEach(function (el) {
-      el.addEventListener('click', openBigPicture);
+      el.addEventListener('click', onMiniPictureClick);
       el.addEventListener('keydown', onMiniPictureEnterPress);
     });
 
-    closeBigPictureButton.addEventListener('click', function () {
+    var onPreviewCloseButtonClick = function () {
       closeBigPicture();
-    });
+    };
+
+    closePreviewButton.addEventListener('click', onPreviewCloseButtonClick);
   };
 })();

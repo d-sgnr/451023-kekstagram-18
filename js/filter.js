@@ -1,6 +1,7 @@
 'use strict';
 
 (function () {
+
   var EFFECT_LINE_WIDTH = 453;
   var HEAT_FILTER_MIN = 1;
   var HEAT_FILTER_MAX = 3;
@@ -44,7 +45,7 @@
   }
 
   radioPreviewsArray.forEach(function (el) {
-    el.addEventListener('click', function () {
+    var onRadioPreviewsClick = function () {
       photoUploadPreview.className = '';
       photoUploadPreview.classList.add(photoUploadPreviewClass);
       photoUploadPreview.classList.add(filterClassPrefix + el.value);
@@ -59,10 +60,12 @@
 
       effectLevelPin.style.left = EFFECT_LINE_WIDTH + 'px';
       effectLevelDeapth.style.width = EFFECT_LINE_WIDTH + 'px';
-    });
-  });
 
-  getDefaultSlider();
+      getDefaultSlider();
+    };
+
+    el.addEventListener('click', onRadioPreviewsClick);
+  });
 
   var changeFilter = function () {
     var effectLevelPinPosition = parseInt(effectLevelPin.style.left, 10);
@@ -91,6 +94,10 @@
     }
   };
 
-  window.slider.initSlider(changeFilter);
+  var onSliderDrag = function () {
+    changeFilter();
+  };
+
+  window.slider.initSlider(onSliderDrag);
 
 })();

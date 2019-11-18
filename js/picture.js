@@ -1,7 +1,10 @@
 'use strict';
 
 (function () {
+  var RANDOM_PHOTO_QTY = 10;
+
   var pictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
+
   var photoSort = document.querySelector('.img-filters');
 
   var renderPhoto = function (photo) {
@@ -15,7 +18,7 @@
 
   var picturesBlock = document.querySelector('.pictures');
 
-  var successHandler = function (photos) {
+  var onPhotosLoad = function (photos) {
     var fragment = document.createDocumentFragment();
     for (var i = 0; i < photos.length; i++) {
       fragment.appendChild(renderPhoto(photos[i]));
@@ -33,42 +36,49 @@
         el.remove();
       });
 
-      var newArr = photosArr.slice();
+      var photosToShow = photosArr.slice();
 
-      newArr.sort(function () {
+      photosToShow.sort(function () {
         return 0.5 - Math.random();
       });
-      newArr.splice(10);
-      for (i = 0; i < newArr.length; i++) {
-        fragment.appendChild(renderPhoto(newArr[i]));
+      photosToShow.splice(RANDOM_PHOTO_QTY);
+      for (i = 0; i < photosToShow.length; i++) {
+        fragment.appendChild(renderPhoto(photosToShow[i]));
       }
       picturesBlock.appendChild(fragment);
       window.getPreviews();
     });
 
-    var randomPhotosButton = document.getElementById('filter-random');
-    var discussedPhotosButton = document.getElementById('filter-discussed');
-    var popularPhotosButton = document.getElementById('filter-popular');
+    var randomPhotosButton = document.querySelector('#filter-random');
+    var discussedPhotosButton = document.querySelector('#filter-discussed');
+    var popularPhotosButton = document.querySelector('#filter-popular');
 
     var sortButtons = document.querySelectorAll('.img-filters__button');
 
     var activateSortButton = function () {
-      sortButtons.forEach(function (el) {
-        el.classList.remove('img-filters__button--active');
-      });
+      var activeSortButton = document.querySelector('.img-filters__button--active');
+      activeSortButton.classList.remove('img-filters__button--active');
       event.target.classList.add('img-filters__button--active');
     };
 
+    var onSortButtonClick = function () {
+      activateSortButton();
+    };
+
     sortButtons.forEach(function (el) {
-      el.addEventListener('click', activateSortButton);
+      el.addEventListener('click', onSortButtonClick);
     });
 
-    randomPhotosButton.addEventListener('click', randomizePhotos);
+    var onRandomizeButtonClick = function () {
+      randomizePhotos();
+    };
+
+    randomPhotosButton.addEventListener('click', onRandomizeButtonClick);
 
     var sortPhotosInDescendingOrder = window.debounce(function (arr) {
 
-      var newArr = arr.slice();
-      newArr.sort(function (a, b) {
+      var photosToShow = arr.slice();
+      photosToShow.sort(function (a, b) {
         return a.comments.length > b.comments.length ? -1 : 1;
       });
 
@@ -77,16 +87,18 @@
         el.remove();
       });
 
-      for (i = 0; i < newArr.length; i++) {
-        fragment.appendChild(renderPhoto(newArr[i]));
+      for (i = 0; i < photosToShow.length; i++) {
+        fragment.appendChild(renderPhoto(photosToShow[i]));
       }
       picturesBlock.appendChild(fragment);
       window.getPreviews();
     });
 
-    discussedPhotosButton.addEventListener('click', function () {
+    var onDiscussedButtonClick = function () {
       sortPhotosInDescendingOrder(photosArr);
-    });
+    };
+
+    discussedPhotosButton.addEventListener('click', onDiscussedButtonClick);
 
     var getPopularPhotos = window.debounce(function () {
       var loadedPhotos = document.querySelectorAll('.picture');
@@ -100,10 +112,14 @@
       window.getPreviews();
     });
 
-    popularPhotosButton.addEventListener('click', getPopularPhotos);
+    var onPopularButtonClick = function () {
+      getPopularPhotos();
+    };
+
+    popularPhotosButton.addEventListener('click', onPopularButtonClick);
   };
 
-  var errorHandler = function (errorMessage) {
+  var onPhotosLoadError = function (errorMessage) {
     var node = document.createElement('div');
     node.style = 'z-index: 100; margin: 0 auto; text-align: center; background-color: red;';
     node.style.position = 'absolute';
@@ -115,6 +131,6 @@
     document.body.insertAdjacentElement('afterbegin', node);
   };
 
-  window.backend.load(successHandler, errorHandler);
+  window.backend.load(onPhotosLoad, onPhotosLoadError);
 
 })();

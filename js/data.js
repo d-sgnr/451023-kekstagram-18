@@ -1,7 +1,17 @@
 'use strict';
 
 (function () {
-  var successHandler = function () {
+
+  var COMMENTS_FIRST_ITEM = 0;
+  var COMMENTS_SHOW_QTY = 5;
+  var ERROR_CONTAINER = 'div';
+  var ERROR_POSITION = 'absolute';
+  var ERROR_LEFT = 0;
+  var ERROR_RIGHT = 0;
+  var ERROR_FONT_SIZE = '30px';
+  var ERROR_STYLE = 'z-index: 100; margin: 0 auto; text-align: center; background-color: red;';
+
+  var onPhotosLoad = function () {
 
     var commentTemplate = document.querySelector('#comment').content.querySelector('.social__comment');
 
@@ -22,23 +32,26 @@
       commentsBlock.appendChild(fragment);
       var loadedComments = Array.from(document.querySelectorAll('.social__comment'));
       var loadMoreCommentsButton = document.querySelector('.social__comments-loader');
-      if (loadedComments.length > 5) {
+      if (loadedComments.length > COMMENTS_SHOW_QTY) {
         loadMoreCommentsButton.classList.remove('visually-hidden');
       }
-      var hiddenComments = loadedComments.slice(5);
+      var hiddenComments = loadedComments.slice(COMMENTS_SHOW_QTY);
       hiddenComments.forEach(function (el) {
         el.classList.add('visually-hidden');
       });
       var loadMoreComments = function () {
-        var commentsToLoad = hiddenComments.splice(0, 5);
+        var commentsToLoad = hiddenComments.splice(COMMENTS_FIRST_ITEM, COMMENTS_SHOW_QTY);
         commentsToLoad.forEach(function (el) {
           el.classList.remove('visually-hidden');
         });
-        if (commentsToLoad.length <= 5) {
+        if (commentsToLoad.length < COMMENTS_SHOW_QTY - 1) {
           loadMoreCommentsButton.classList.add('visually-hidden');
         }
       };
-      loadMoreCommentsButton.addEventListener('click', loadMoreComments);
+      var onMoreCommentsClick = function () {
+        loadMoreComments();
+      };
+      loadMoreCommentsButton.addEventListener('click', onMoreCommentsClick);
     };
 
     window.getData = function (photo) {
@@ -49,17 +62,18 @@
     };
   };
 
-  var errorHandler = function (errorMessage) {
-    var node = document.createElement('div');
-    node.style = 'z-index: 100; margin: 0 auto; text-align: center; background-color: red;';
-    node.style.position = 'absolute';
-    node.style.left = 0;
-    node.style.right = 0;
-    node.style.fontSize = '30px';
+  var onPhotosLoadError = function (errorMessage) {
+    var node = document.createElement(ERROR_CONTAINER);
+    node.style = ERROR_STYLE;
+    node.style.position = ERROR_POSITION;
+    node.style.left = ERROR_LEFT;
+    node.style.right = ERROR_RIGHT;
+    node.style.fontSize = ERROR_FONT_SIZE;
 
     node.textContent = errorMessage;
     document.body.insertAdjacentElement('afterbegin', node);
   };
 
-  window.backend.load(successHandler, errorHandler);
+  window.backend.load(onPhotosLoad, onPhotosLoadError);
+
 })();
