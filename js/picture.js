@@ -9,10 +9,13 @@
 
   var renderPhoto = function (photo) {
     var pictureElement = pictureTemplate.cloneNode(true);
-    pictureElement.querySelector('.picture__img').src = photo.url;
-    pictureElement.querySelector('.picture__comments').textContent = photo.comments.length;
-    pictureElement.querySelector('.picture__likes').textContent = photo.likes;
-    pictureElement.querySelector('.picture__img').link = photo;
+    var pictureImg = pictureElement.querySelector('.picture__img');
+    var pictureLikes = pictureElement.querySelector('.picture__likes');
+    var pictureComments = pictureElement.querySelector('.picture__comments');
+    pictureImg.src = photo.url;
+    pictureComments.textContent = photo.comments.length;
+    pictureLikes.textContent = photo.likes;
+    pictureImg.link = photo;
     return pictureElement;
   };
 
@@ -20,10 +23,10 @@
 
   var onPhotosLoad = function (photos) {
     var fragment = document.createDocumentFragment();
-    for (var i = 0; i < photos.length; i++) {
-      fragment.appendChild(renderPhoto(photos[i]));
-    }
-    picturesBlock.appendChild(fragment);
+    photos.forEach(function (el) {
+      fragment.appendChild(renderPhoto(el));
+      picturesBlock.appendChild(fragment);
+    });
     window.getPreviews();
     photoSort.classList.remove('img-filters--inactive');
 
@@ -42,10 +45,10 @@
         return 0.5 - Math.random();
       });
       photosToShow.splice(RANDOM_PHOTO_QTY);
-      for (i = 0; i < photosToShow.length; i++) {
-        fragment.appendChild(renderPhoto(photosToShow[i]));
-      }
-      picturesBlock.appendChild(fragment);
+      photosToShow.forEach(function (el) {
+        fragment.appendChild(renderPhoto(el));
+        picturesBlock.appendChild(fragment);
+      });
       window.getPreviews();
     });
 
@@ -55,14 +58,14 @@
 
     var sortButtons = document.querySelectorAll('.img-filters__button');
 
-    var activateSortButton = function () {
+    var activateSortButton = function (evt) {
       var activeSortButton = document.querySelector('.img-filters__button--active');
       activeSortButton.classList.remove('img-filters__button--active');
-      event.target.classList.add('img-filters__button--active');
+      evt.target.classList.add('img-filters__button--active');
     };
 
-    var onSortButtonClick = function () {
-      activateSortButton();
+    var onSortButtonClick = function (evt) {
+      activateSortButton(evt);
     };
 
     sortButtons.forEach(function (el) {
@@ -87,7 +90,7 @@
         el.remove();
       });
 
-      for (i = 0; i < photosToShow.length; i++) {
+      for (var i = 0; i < photosToShow.length; i++) {
         fragment.appendChild(renderPhoto(photosToShow[i]));
       }
       picturesBlock.appendChild(fragment);
@@ -105,10 +108,10 @@
       loadedPhotos.forEach(function (el) {
         el.remove();
       });
-      for (i = 0; i < photos.length; i++) {
-        fragment.appendChild(renderPhoto(photos[i]));
-      }
-      picturesBlock.appendChild(fragment);
+      photos.forEach(function (el) {
+        fragment.appendChild(renderPhoto(el));
+        picturesBlock.appendChild(fragment);
+      });
       window.getPreviews();
     });
 

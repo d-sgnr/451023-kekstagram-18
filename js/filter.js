@@ -14,13 +14,18 @@
   var photoUploadPreview = document.querySelector('.img-upload__preview');
   var photoUploadPreviewClass = 'img-upload__preview';
   var effectLevelPin = document.querySelector('.effect-level__pin');
-  var effectLevelDeapth = document.querySelector('.effect-level__depth');
+  var effectLevelDepth = document.querySelector('.effect-level__depth');
   var effectSlider = document.querySelector('.img-upload__effect-level');
   var imgFilter = document.querySelector('.img-upload__preview');
 
+  window.getDefaultFilter = function () {
+    var defaultRadio = document.querySelector('#effect-none');
+    defaultRadio.click();
+  };
+
   var getDefaultSlider = function () {
     effectLevelPin.style.left = EFFECT_LINE_WIDTH + 'px';
-    effectLevelDeapth.style.width = EFFECT_LINE_WIDTH + 'px';
+    effectLevelDepth.style.width = EFFECT_LINE_WIDTH + 'px';
   };
 
   var getFilterValue = function (number) {
@@ -57,9 +62,6 @@
       } else {
         effectSlider.classList.remove('hidden');
       }
-
-      effectLevelPin.style.left = EFFECT_LINE_WIDTH + 'px';
-      effectLevelDeapth.style.width = EFFECT_LINE_WIDTH + 'px';
 
       getDefaultSlider();
     };

@@ -18,9 +18,17 @@
       bigPictureImg.src = photo;
     };
 
-    var openBigPicture = function () {
+    var onPreviewEscPress = function (evt) {
+      closeBigPictureOnEsc(evt);
+    };
+
+    var onClosePreviewEnterPress = function (evt) {
+      closeBigPictureOnEnter(evt);
+    };
+
+    var openBigPicture = function (evt) {
       pageBody.classList.add('modal-open');
-      event.preventDefault();
+      evt.preventDefault();
       var oldComments = document.querySelectorAll('.social__comment');
       if (oldComments.length !== 0) {
         oldComments.forEach(function (el) {
@@ -28,21 +36,21 @@
         });
       }
 
-      var miniaturePicture = event.currentTarget.querySelector('.picture__img').src;
+      var miniaturePicture = evt.currentTarget.querySelector('.picture__img').src;
 
-      var clickedPhoto = event.currentTarget.querySelector('.picture__img').link;
+      var clickedPhoto = evt.currentTarget.querySelector('.picture__img').link;
 
       hideDefaultElements();
       renderBigPhoto(miniaturePicture);
-      window.getData(clickedPhoto);
-      window.getComments(clickedPhoto);
+      window.getData.text(clickedPhoto);
+      window.getData.comments(clickedPhoto);
       bigPictureBlock.classList.remove('hidden');
-      document.addEventListener('keydown', closeBigPictureOnEsc);
-      closePreviewButton.addEventListener('keydown', closeBigPictureOnEnter);
+      document.addEventListener('keydown', onPreviewEscPress);
+      closePreviewButton.addEventListener('keydown', onClosePreviewEnterPress);
     };
 
-    var onMiniPictureClick = function () {
-      openBigPicture();
+    var onMiniPictureClick = function (evt) {
+      openBigPicture(evt);
     };
 
     var onMiniPictureEnterPress = function (evt) {
@@ -60,8 +68,8 @@
       pageBody.classList.remove('modal-open');
       pageBody.removeAttribute('class');
       bigPictureBlock.classList.add('hidden');
-      document.removeEventListener('keydown', closeBigPictureOnEsc);
-      closePreviewButton.removeEventListener('keydown', closeBigPictureOnEnter);
+      document.removeEventListener('keydown', onPreviewEscPress);
+      closePreviewButton.removeEventListener('keydown', onClosePreviewEnterPress);
       deleteBigPhoto();
     };
 

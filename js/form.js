@@ -18,6 +18,7 @@
   var imgUploadForm = document.querySelector('.img-upload__form');
   var hashtagsInput = document.querySelector('.text__hashtags');
   var formSubmitBtn = document.querySelector('.img-upload__submit');
+  var commentInput = document.querySelector('.text__description');
 
   var errorTemplate = document.querySelector('#error').content.querySelector('.error');
 
@@ -27,7 +28,7 @@
   var errorMessage = errorTemplate.cloneNode(true);
 
   var closeEditorOnEsc = function (evt) {
-    if (document.activeElement === hashtagsInput) {
+    if (document.activeElement === hashtagsInput || document.activeElement === commentInput) {
       return null;
     }
 
@@ -35,44 +36,70 @@
   };
 
   var hasDuplicates = function (arr) {
-    return arr.some(function (item, index) {
-      return arr.indexOf(item.toLowerCase()) !== index;
+    var object = {};
+    var result = [];
+
+    arr.forEach(function (item) {
+      if (!object[item.toLowerCase()]) {
+        object[item.toLowerCase()] = 0;
+      }
+      object[item.toLowerCase()] += 1;
     });
+
+    for (var prop in object) {
+      if (object[prop] >= 2) {
+        result.push(prop);
+      }
+    }
+
+    return result.length !== 0;
   };
 
   var validateHashtags = function () {
-    var hashTags = hashtagsInput.value.split(' ');
-    for (var i = 0; i < hashTags.length; i++) {
-      if (hashTags[i] === '') {
-        hashtagsInput.setCustomValidity('');
-      } else if (hashTags[i].charAt(0) !== '#') {
-        hashtagsInput.setCustomValidity('Хэш-тег должен начинаться с решётки');
-      } else if (hashTags[i] === '#') {
-        hashtagsInput.setCustomValidity('Хэш-тег не может состоять только из одной решётки');
-      } else if (hashTags.length > MAX_HASHTAGS_QTY) {
-        hashtagsInput.setCustomValidity('Нельзя указывать больше ' + MAX_HASHTAGS_QTY + ' хэш-тегов');
-      } else if (hashTags[i].length > MAX_HASHTAGS_LENGTH) {
-        hashtagsInput.setCustomValidity('Максимальная длина одного хэш-тега не более ' + MAX_HASHTAGS_LENGTH + ' символов, включая решётку');
-      } else if ((hashTags[i].match(/#/g)).length > 1) {
-        hashtagsInput.setCustomValidity('Хэш-теги должны разделяться пробелами');
-      } else if (hasDuplicates(hashTags)) {
-        hashtagsInput.setCustomValidity('Один и тот же хэш-тег не может быть использован дважды');
+    if (hashtagsInput.value !== '') {
+      var hashTags = hashtagsInput.value.split(' ');
+      hashTags.forEach(function (el) {
+        if (hashTags[0] === '' || el.charAt(0) !== '#') {
+          hashtagsInput.setCustomValidity('Хэш-тег должен начинаться с решётки');
+        } else if (el === '#') {
+          hashtagsInput.setCustomValidity('Хэш-тег не может состоять только из одной решётки');
+        } else if (hashTags.length > MAX_HASHTAGS_QTY) {
+          hashtagsInput.setCustomValidity('Нельзя указывать больше ' + MAX_HASHTAGS_QTY + ' хэш-тегов');
+        } else if (el.length > MAX_HASHTAGS_LENGTH) {
+          hashtagsInput.setCustomValidity('Максимальная длина одного хэш-тега не более ' + MAX_HASHTAGS_LENGTH + ' символов, включая решётку');
+        } else if ((el.match(/#/g)).length > 1) {
+          hashtagsInput.setCustomValidity('Хэш-теги должны разделяться пробелами');
+        } else if (hasDuplicates(hashTags)) {
+          hashtagsInput.setCustomValidity('Один и тот же хэш-тег не может быть использован дважды');
+        } else {
+          hashtagsInput.setCustomValidity('');
+        }
+      });
+      if (!hashtagsInput.checkValidity()) {
+        hashtagsInput.style.boxShadow = '0px 0px 4px 4px red';
       } else {
-        hashtagsInput.setCustomValidity('');
+        hashtagsInput.style.boxShadow = '';
       }
-    }
-    if (!hashtagsInput.checkValidity()) {
-      hashtagsInput.style.boxShadow = '0px 0px 4px 4px red';
     } else {
       hashtagsInput.style.boxShadow = '';
+      hashtagsInput.setCustomValidity('');
     }
     return hashtagsInput.reportValidity();
   };
 
+  var onEditorEscPress = function (evt) {
+    closeEditorOnEsc(evt);
+  };
+
+  var onCloseEnterPress = function (evt) {
+    closeEditorOnEnter(evt);
+  };
+
   var openEditor = function () {
+    window.getDefaultFilter();
     photoEditForm.classList.remove('hidden');
-    document.addEventListener('keydown', closeEditorOnEsc);
-    photoEditFormClose.addEventListener('keydown', closeEditorOnEnter);
+    document.addEventListener('keydown', onEditorEscPress);
+    photoEditFormClose.addEventListener('keydown', onCloseEnterPress);
   };
 
   var closeEditor = function () {
@@ -80,8 +107,8 @@
     imgUploadForm.reset();
     hashtagsInput.style.boxShadow = '';
     photoUpload.style.transform = '';
-    document.removeEventListener('keydown', closeEditorOnEsc);
-    photoEditFormClose.removeEventListener('keydown', closeEditorOnEnter);
+    document.removeEventListener('keydown', onEditorEscPress);
+    photoEditFormClose.removeEventListener('keydown', onCloseEnterPress);
   };
 
   var closeEditorOnEnter = function (evt) {
@@ -121,7 +148,7 @@
     validateHashtags();
   };
 
-  hashtagsInput.addEventListener('change', onHashtagsInputChange);
+  hashtagsInput.addEventListener('input', onHashtagsInputChange);
 
   var onImgUploadChange = function () {
     openEditor();
@@ -144,14 +171,36 @@
     var successWindow = document.querySelector('.success');
 
     var closeSuccess = function () {
+      successWindow.remove();
+      document.removeEventListener('click', onFreeSpaceClick);
+      document.removeEventListener('keydown', onEscPress);
+      successButton.removeEventListener('click', onSuccessButtonClick);
+      successButton.removeEventListener('keydown', onEnterPress);
+    };
+
+    var closeSuccessOnClick = function (evt) {
       var notClickable = document.querySelector('.success__inner');
-      if (event.target !== notClickable) {
-        successWindow.remove();
-        document.removeEventListener('click', closeSuccess);
-        document.removeEventListener('keydown', closeSuccessOnEsc);
-        successButton.removeEventListener('click', closeSuccess);
-        successButton.removeEventListener('keydown', closeSuccessOnEnter);
+      if (evt.target !== notClickable) {
+        closeSuccess();
       }
+    };
+
+    var successButton = document.querySelector('.success__button');
+
+    var onSuccessButtonClick = function (evt) {
+      closeSuccess(evt);
+    };
+
+    var onFreeSpaceClick = function (evt) {
+      closeSuccessOnClick(evt);
+    };
+
+    var onEscPress = function (evt) {
+      closeSuccessOnEsc(evt);
+    };
+
+    var onEnterPress = function (evt) {
+      closeSuccessOnEnter(evt);
     };
 
     var closeSuccessOnEsc = function (evt) {
@@ -162,15 +211,10 @@
       window.util.isEnterEvent(evt, closeSuccess);
     };
 
-    var successButton = document.querySelector('.success__button');
-    var onSuccessButtonClick = function () {
-      closeSuccess();
-    };
-
     successButton.addEventListener('click', onSuccessButtonClick);
-    successButton.addEventListener('keydown', closeSuccessOnEnter);
-    document.addEventListener('click', closeSuccess);
-    document.addEventListener('keydown', closeSuccessOnEsc);
+    successButton.addEventListener('keydown', onEnterPress);
+    document.addEventListener('click', onFreeSpaceClick);
+    document.addEventListener('keydown', onEscPress);
   };
 
   var showErrorMessage = function () {
@@ -190,24 +234,41 @@
       imgUpload.click();
     };
 
-    var onTryAgainClick = function () {
-      closeError();
+    var onTryAnotherFileClick = function () {
+      tryAnotherFile();
     };
 
-    var onScreenClick = function () {
-      closeError();
+    var onTryAgainClick = function (evt) {
+      closeError(evt);
+    };
+
+    var onEscPress = function (evt) {
+      closeErrorOnEsc(evt);
+    };
+
+    var onEnterPress = function (evt) {
+      closeErrorOnEnter(evt);
     };
 
     var closeError = function () {
+      errorWindow.remove();
+      document.removeEventListener('click', onFreeSpaceClick);
+      document.removeEventListener('keydown', onEscPress);
+      document.addEventListener('keydown', onEditorEscPress);
+      tryAgainButton.removeEventListener('click', onTryAgainClick);
+      tryAgainButton.removeEventListener('keydown', onEnterPress);
+      tryAnotherFileButton.removeEventListener('click', onTryAnotherFileClick);
+    };
+
+    var closeErrorOnClick = function (evt) {
       var notClickable = document.querySelector('.error__inner');
-      if (event.target !== notClickable) {
-        errorWindow.remove();
-        document.removeEventListener('click', onScreenClick);
-        document.removeEventListener('keydown', closeErrorOnEsc);
-        document.addEventListener('keydown', closeEditorOnEsc);
-        tryAgainButton.removeEventListener('click', onTryAgainClick);
-        tryAgainButton.removeEventListener('keydown', closeErrorOnEnter);
+      if (evt.target !== notClickable) {
+        closeError();
       }
+    };
+
+    var onFreeSpaceClick = function (evt) {
+      closeErrorOnClick(evt);
     };
 
     var closeErrorOnEsc = function (evt) {
@@ -218,28 +279,27 @@
       window.util.isEnterEvent(evt, closeError);
     };
 
-    tryAnotherFileButton.addEventListener('click', tryAnotherFile);
-
+    tryAnotherFileButton.addEventListener('click', onTryAnotherFileClick);
     tryAgainButton.addEventListener('click', onTryAgainClick);
-    tryAgainButton.addEventListener('keydown', closeErrorOnEnter);
-    document.addEventListener('keydown', closeErrorOnEsc);
-    document.addEventListener('click', onScreenClick);
-    document.removeEventListener('keydown', closeEditorOnEsc);
+    tryAgainButton.addEventListener('keydown', onEnterPress);
+    document.addEventListener('keydown', onEscPress);
+    document.addEventListener('click', onFreeSpaceClick);
+    document.removeEventListener('keydown', onEditorEscPress);
   };
 
-  var submitForm = function () {
-    imgUploadForm.addEventListener('submit', function (evt) {
+  var submitForm = function (evt) {
+    evt.preventDefault();
+    evt.stopImmediatePropagation();
+    if (validateHashtags()) {
       window.backend.save(new FormData(imgUploadForm), showSuccessMessage, showErrorMessage);
-      evt.preventDefault();
-    });
+    }
+    return validateHashtags();
   };
 
-  formSubmitBtn.addEventListener('click', submitForm);
-
-  var closeFormOnSubmit = function (evt) {
-    window.util.isEnterEvent(evt, submitForm);
+  var onFormButtonClick = function (evt) {
+    submitForm(evt);
   };
 
-  formSubmitBtn.addEventListener('keydown', closeFormOnSubmit);
+  formSubmitBtn.addEventListener('click', onFormButtonClick);
 
 })();
